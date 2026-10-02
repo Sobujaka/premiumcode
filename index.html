@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Premium Code - WEB-XBD</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Copy Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+
+    <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-md text-center border border-gray-700">
+        <h1 class="text-2xl font-bold mb-6 text-indigo-400">Premium Code Generator</h1>
+        
+        <!-- Get Premium Button -->
+        <button id="getBtn" onclick="fetchRandomCode()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-xl transition duration-300 shadow-lg transform active:scale-95 cursor-pointer">
+            Get Premium
+        </button>
+
+        <!-- Result Box (Hidden initially) -->
+        <div id="resultBox" class="mt-6 hidden flex items-center justify-between bg-gray-900 p-4 rounded-xl border border-gray-700">
+            <span id="codeText" class="text-green-400 font-mono text-sm break-all text-left"></span>
+            <button onclick="copyCode()" class="ml-3 bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm transition flex items-center gap-1 cursor-pointer" title="Copy Code">
+                <i class="fa-regular fa-copy"></i> Copy
+            </button>
+        </div>
+
+        <!-- Status Message -->
+        <p id="statusMsg" class="text-xs text-gray-400 mt-4"></p>
+    </div>
+
+    <script>
+        const jsonUrl = 'https://raw.githubusercontent.com/Sobujaka/STREMXBD/refs/heads/main/pemiumcode.json';
+
+        async function fetchRandomCode() {
+            const statusMsg = document.getElementById('statusMsg');
+            const resultBox = document.getElementById('resultBox');
+            const codeText = document.getElementById('codeText');
+            
+            statusMsg.textContent = 'Loading code...';
+            resultBox.classList.add('hidden');
+
+            try {
+                // Adding timestamp to bypass browser cache
+                const response = await fetch(jsonUrl + '?t=' + new Date().getTime());
+                if (!response.ok) throw new Error('Failed to fetch data');
+                
+                const data = await response.json();
+                
+                if (Array.isArray(data) && data.length > 0) {
+                    // Pick a random index from JSON array
+                    const randomIndex = Math.floor(Math.random() * data.length);
+                    const randomCode = data[randomIndex].code;
+
+                    codeText.textContent = randomCode;
+                    resultBox.classList.remove('hidden');
+                    statusMsg.textContent = '';
+                } else {
+                    statusMsg.textContent = 'No codes found in JSON!';
+                }
+            } catch (error) {
+                console.error(error);
+                statusMsg.textContent = 'Error loading code. Please check your connection or CORS settings.';
+            }
+        }
+
+        function copyCode() {
+            const codeText = document.getElementById('codeText').textContent;
+            navigator.clipboard.writeText(codeText).then(() => {
+                const statusMsg = document.getElementById('statusMsg');
+                statusMsg.textContent = 'Code copied to clipboard!';
+                setTimeout(() => { statusMsg.textContent = ''; }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
